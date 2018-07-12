@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">taskit-android</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_email_or_username">Email or username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="error_too_short_password">Password must include at least 8 characters</string>
+    <string name="error_simple_password">Password must include numbers and letters</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="sign_up">Sign up</string>
+    <string name="code">Code</string>
+    <string name="reset_password">rest password</string>
+
+</resources>
