@@ -15,8 +15,10 @@ import android.widget.Toast;
 
 import com.taskit.taskit_android.R;
 import com.taskit.taskit_android.component.CountDownButton;
-import com.taskit.taskit_android.service.UserService;
-import com.taskit.taskit_android.service.impl.UserServiceImpl;
+import com.taskit.taskit_android.util.UserHttpUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by nick on 2018/7/12.
@@ -29,7 +31,16 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
-            Toast.makeText(ForgotPasswordActivity.this, bundle.getString("result"), Toast.LENGTH_SHORT).show();
+            if(bundle.getBoolean("success")){
+                Toast.makeText(ForgotPasswordActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+            }else{
+                if (bundle.containsKey("email"))
+                    mEmailView.setError(bundle.getString("email"));
+                if (bundle.containsKey("password"))
+                    mPasswordView.setError(bundle.getString("password"));
+                if (bundle.containsKey("code"))
+                    mCodeView.setError(bundle.getString("code"));
+            }
         }
     };
 
@@ -94,6 +105,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
+            hideKeyBoard();
             mSendCodeTask = new SendCodeTask(handler,email);
             mSendCodeTask.execute((String[]) null);
             mCountDownButton.start();
@@ -116,11 +128,23 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
+        String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
         String code = mCodeView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        } else if (!isEmailValid(email)) {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
 
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(password)) {
@@ -151,7 +175,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             hideKeyBoard();
-            mAuthTask = new PasswordResetTask(handler,code, password);
+            mAuthTask = new PasswordResetTask(handler,email,code, password);
             mAuthTask.execute((String[]) null);
         }
     }
@@ -182,32 +206,51 @@ public class ForgotPasswordActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class PasswordResetTask extends AsyncTask<String, Void, String> {
+    public class PasswordResetTask extends AsyncTask<String, Void, JSONObject> {
         private Handler handler;
         private final String mcode;
         private final String mPassword;
+        private final String mEmail;
 
-        PasswordResetTask(Handler handler, String code, String password) {
+        PasswordResetTask(Handler handler, String email,String code, String password) {
             mcode = code;
             mPassword = password;
+            mEmail = email;
             this.handler=handler;
         }
 
         @Override
-        protected String doInBackground(String... params) {
-            UserService service = new UserServiceImpl();
-            return service.set_password(mcode,mPassword);
+        protected JSONObject doInBackground(String... params) {
+            return UserHttpUtil.set_password(mEmail,mcode,mPassword);
         }
 
         @Override
-        protected void onPostExecute(final String success) {
+        protected void onPostExecute(final JSONObject result) {
             mAuthTask = null;
             Message msg = new Message();
             Bundle bundle = new Bundle();
-            bundle.putString("result",success);
+            try {
+                if (result.getBoolean("success")){
+                    bundle.putBoolean("success",true);
+                }else{
+                    bundle.putBoolean("success",false);
+                    if (result.has("non_field_errors")){
+                        String error = result.getString("non_field_errors");
+                        if (error.contains("Email")){
+                            bundle.putString("email",error);
+                        }else if (error.contains("code")){
+                            bundle.putString("code",error);
+                        }
+                    }
+                    if (result.has("password")){
+                        bundle.putString("password",result.getString("password"));
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             msg.setData(bundle);
             handler.sendMessage(msg);
-            System.out.println(success);
         }
 
         @Override
@@ -216,7 +259,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         }
     }
 
-    public class SendCodeTask extends AsyncTask<String, Void, String> {
+    public class SendCodeTask extends AsyncTask<String, Void, JSONObject> {
         private Handler handler;
         private final String memail;
 
@@ -226,16 +269,28 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... params) {
-            UserService service = new UserServiceImpl();
-            return service.reset_password(memail);
+        protected JSONObject doInBackground(String... params) {
+            return UserHttpUtil.reset_password(memail);
         }
 
         @Override
-        protected void onPostExecute(final String success) {
+        protected void onPostExecute(final JSONObject result) {
             Message msg = new Message();
             Bundle bundle = new Bundle();
-            bundle.putString("result",success);
+            System.out.println(result.toString());
+            try {
+                if (result.getBoolean("success")){
+                    bundle.putBoolean("success",true);
+                }else{
+                    bundle.putBoolean("success",false);
+                    if (result.has("email"))
+                        bundle.putString("email",result.getString("email"));
+                    else if (result.has("non_field_errors"))
+                        bundle.putString("email",result.getString("non_field_errors"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             msg.setData(bundle);
             handler.sendMessage(msg);
         }

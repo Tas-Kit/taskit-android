@@ -21,8 +21,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.taskit.taskit_android.R;
-import com.taskit.taskit_android.service.UserService;
-import com.taskit.taskit_android.service.impl.UserServiceImpl;
+import com.taskit.taskit_android.util.UserHttpUtil;
+
+import org.json.JSONObject;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -155,11 +156,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Shows the progress UI and hides the login form.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
@@ -193,7 +190,7 @@ public class LoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<String, Void, String> {
+    public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         private Handler handler;
         private final String mEmail;
         private final String mPassword;
@@ -205,27 +202,25 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... params) {
-            UserService service = new UserServiceImpl();
-            return service.login(mEmail,mPassword);
+        protected Boolean doInBackground(String... params) {
+            return UserHttpUtil.login(mEmail,mPassword);
         }
 
         @Override
-        protected void onPostExecute(final String success) {
+        protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success.equals("\"SUCCESS\"")) {
+            if (success) {
                 Message msg = new Message();
                 Bundle bundle = new Bundle();
-                bundle.putString("result",success);
+                bundle.putString("result","SUCCESS");
                 msg.setData(bundle);
                 handler.sendMessage(msg);
-            } else {
-                // TODO handle specific error
+            } else{
                 Message msg = new Message();
                 Bundle bundle = new Bundle();
-                bundle.putString("result",success);
+                bundle.putString("result","username/email or password incorrect");
                 msg.setData(bundle);
                 handler.sendMessage(msg);
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

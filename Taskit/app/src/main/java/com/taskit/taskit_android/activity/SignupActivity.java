@@ -18,8 +18,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.taskit.taskit_android.R;
-import com.taskit.taskit_android.service.UserService;
-import com.taskit.taskit_android.service.impl.UserServiceImpl;
+import com.taskit.taskit_android.util.UserHttpUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by nick on 2018/7/11.
@@ -30,7 +32,25 @@ public class SignupActivity extends AppCompatActivity {
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
-            Toast.makeText(SignupActivity.this, bundle.getString("result"), Toast.LENGTH_SHORT).show();
+            boolean success = bundle.getBoolean("result");
+            if(success)
+                //TODO start new activity
+                Toast.makeText(SignupActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+            else{
+                // handle specific error
+                if(bundle.containsKey("email")){
+                    mEmailView.setError(bundle.getString("email"));
+                    mEmailView.requestFocus();
+                }
+                if (bundle.containsKey("password")){
+                    mPasswordView.setError(bundle.getString("password"));
+                    mEmailView.requestFocus();
+                }
+                if(bundle.containsKey("username")){
+                    mUsernameView.setError(bundle.getString("username"));
+                    mEmailView.requestFocus();
+                }
+            }
         }
     };
 
@@ -162,7 +182,6 @@ public class SignupActivity extends AppCompatActivity {
     /**
      * Shows the progress UI and hides the login form.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
@@ -200,7 +219,7 @@ public class SignupActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserSignupTask extends AsyncTask<String, Void, String> {
+    public class UserSignupTask extends AsyncTask<String, Void, JSONObject> {
         private Handler handler;
         private final String mEmail;
         private final String mPassword;
@@ -213,21 +232,37 @@ public class SignupActivity extends AppCompatActivity {
             this.handler=handler;
         }
 
+
         @Override
-        protected String doInBackground(String... params) {
-            UserService service = new UserServiceImpl();
-            System.out.println(mEmail);
-            return service.signup(mUsername,mPassword,mEmail);
+        protected JSONObject doInBackground(String... params) {
+            return UserHttpUtil.signup(mUsername,mPassword,mEmail);
         }
 
         @Override
-        protected void onPostExecute(final String success) {
-            // TODO handle specific error
+        protected void onPostExecute(final JSONObject result) {
             mAuthTask = null;
             showProgress(false);
             Message msg = new Message();
             Bundle bundle = new Bundle();
-            bundle.putString("result",success);
+            boolean success = true;
+            try {
+                if (result.has("email") && !result.getString("email").equals(mEmail)){
+                    bundle.putString("email",result.getString("email"));
+                    success = false;
+                }
+                if(result.has("password")){
+                    bundle.putString("password",result.getString("password"));
+                    success = false;
+                }
+                if(result.has("username") && !result.get("username").equals(mUsername)){
+                    bundle.putString("username",result.getString("username"));
+                    success = false;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            bundle.putBoolean("result",success);
             msg.setData(bundle);
             handler.sendMessage(msg);
         }

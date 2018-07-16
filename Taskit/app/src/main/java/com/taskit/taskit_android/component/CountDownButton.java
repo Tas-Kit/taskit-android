@@ -14,12 +14,10 @@ import com.taskit.taskit_android.R;
  */
 public class CountDownButton extends Button {
 
-
-    //总时长
-    private long millisinfuture;
-
-    //间隔时长
-    private long countdowninterva;
+    //总时长 60s
+    private static final long millisinfuture=60000;
+    //间隔时长 1s
+    private static final long countdowninterval=1000;
 
     //是否结束
     private boolean isFinish;
@@ -38,10 +36,6 @@ public class CountDownButton extends Button {
     public CountDownButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.CountDownButton, defStyleAttr, 0);
-        //设置默认时长
-        millisinfuture = (long) typedArray.getInt(R.styleable.CountDownButton_millisinfuture, 60000);
-        //设置默认间隔时长
-        countdowninterva = (long) typedArray.getInt(R.styleable.CountDownButton_countdowninterva, 1000);
         //默认为已结束状态
         isFinish = true;
         //字体居中
@@ -49,12 +43,11 @@ public class CountDownButton extends Button {
         //默认文字和背景色
         normalBackground();
         //设置定时器
-        countDownTimer = new CountDownTimer(millisinfuture, countdowninterva) {
+        countDownTimer = new CountDownTimer(millisinfuture, countdowninterval) {
             @Override
             public void onTick(long millisUntilFinished) {
                 //未结束
                 isFinish = false;
-
                 setText((Math.round((double) millisUntilFinished / 1000) - 1) + "s");
             }
 
