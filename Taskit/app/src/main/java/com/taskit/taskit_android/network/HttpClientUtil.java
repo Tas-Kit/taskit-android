@@ -20,7 +20,7 @@ import okhttp3.Response;
  */
 public class HttpClientUtil {
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private static final String BASE_URL = "http://sandbox.tas-kit.com/api/v1/";
+    private static final String BASE_URL = "http://staging.tas-kit.com/api/v1/";
 
     private static OkHttpClient client = new OkHttpClient();
 
