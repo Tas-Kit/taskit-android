@@ -43,14 +43,12 @@ public class HttpClientUtil {
                 .build();
         Response response = client.newCall(request).execute();
         return response.body().string();
-
     }
 
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
     }
 }
-
 
 
 
