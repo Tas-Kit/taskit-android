@@ -26,4 +26,6 @@ dependencies {
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.android.support:design:26.0.0-alpha1'
     compile 'com.squareup.okhttp3:okhttp:3.10.0'
+    compile 'com.snappydb:snappydb-lib:0.4.0'
+    compile 'com.esotericsoftware.kryo:kryo:2.24.0'
 }

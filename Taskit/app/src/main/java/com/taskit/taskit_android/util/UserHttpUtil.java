@@ -1,11 +1,14 @@
 package com.taskit.taskit_android.util;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.taskit.taskit_android.model.User;
 import com.taskit.taskit_android.network.HttpClientUtil;
 
 import org.json.JSONException;
@@ -15,16 +18,18 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
-/**
- * Created by nick on 2018/7/11.
- */
-public class UserHttpUtil{
-    private static String LOGIN_URL = "userservice/exempt/login/";
+
+public class UserHttpUtil {
+
+    private static final String TAG = UserHttpUtil.class.getSimpleName();
+
+    private static String LOGIN_URL = "userservice/exempt/get_jwt/";
     private static String SIGNUP_URL = "userservice/exempt/signup/";
     private static String RESET_PASSWORD_URL = "userservice/exempt/reset_password/";
     private static String SET_PASSWORD_URL = "userservice/exempt/set_password/";
 
-    public static boolean login(String username, String password) {
+    // Return token for successful log in, otherwise null
+    public static String login(String username, String password) {
         JSONObject post = new JSONObject();
         try {
             post.put("username",username);
@@ -35,14 +40,21 @@ public class UserHttpUtil{
 
         try {
             String result = HttpClientUtil.postJson(LOGIN_URL, post.toString());
-            if(result.equals("\"SUCCESS\""))
-                return true;
-            else
-                return false;
+            JSONObject object = new JSONObject(result);
+            Log.d(TAG, String.format("get json result %s from log in",  object));
+            String token = object.getString("token");
+            if (token != null) {
+                return token;
+            } else {
+                return null;
+            }
         } catch (IOException e) {
             e.printStackTrace();
+            // safe to ignore IOException for now
+        } catch (JSONException e) {
+            // safe to ignore JSONException for now
         }
-        return false;
+        return null;
     }
 
     public static JSONObject signup(String username, String password, String email) {

@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.taskit.taskit_android.R;
+import com.taskit.taskit_android.model.User;
 import com.taskit.taskit_android.util.UserHttpUtil;
 
 import org.json.JSONObject;
@@ -28,6 +30,7 @@ import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String TAG =  LoginActivity.class.getSimpleName();
     private UserLoginTask mAuthTask = null;
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
@@ -45,12 +48,32 @@ public class LoginActivity extends AppCompatActivity {
     private View mProgressView;
     private View mLoginFormView;
 
+    // Redirect to Main Page if already log in.
+    private void maybeRedirect() {
+        Log.d(TAG, String.format("mayebe Redirect %s", TAG));
+        String token = User.getToken(getApplicationContext());
+        User user = User.getUser(getApplicationContext());
+        if (token != null && user != null) {
+            Log.d(TAG, String.format("Exist token %s", token));
+            Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        maybeRedirect();
         setContentView(R.layout.activity_login);
         initView();
         initEvent();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        maybeRedirect();
     }
 
     /**
@@ -190,7 +213,7 @@ public class LoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<String, Void, String> {
         private Handler handler;
         private final String mEmail;
         private final String mPassword;
@@ -202,21 +225,26 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Boolean doInBackground(String... params) {
+        protected String  doInBackground(String... params) {
             return UserHttpUtil.login(mEmail,mPassword);
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final String token) {
             mAuthTask = null;
             showProgress(false);
-
-            if (success) {
+            if (token != null) {
                 Message msg = new Message();
                 Bundle bundle = new Bundle();
-                bundle.putString("result","SUCCESS");
+                bundle.putString("result", "Login Successfully, redirecting to the dashboard!");
                 msg.setData(bundle);
                 handler.sendMessage(msg);
+                // store User and Auth info to db and redirect
+                User.syncTokenToDB(getApplicationContext(), token);
+                User.syncUserToDB(getApplicationContext(), new User(mEmail, mPassword, mEmail));
+                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                startActivity(intent);
+                finish();
             } else{
                 Message msg = new Message();
                 Bundle bundle = new Bundle();
