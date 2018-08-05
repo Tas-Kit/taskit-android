@@ -30,7 +30,6 @@ public class User implements Serializable {
     String username = "";
     String password = "";
 
-
     public User() {
 
     }
@@ -102,10 +101,27 @@ public class User implements Serializable {
     }
 
 
-    // Used for sync
-    @Override
-    public String toString() {
-        return String.format("email:%s,username:%s,password:%s", email, username, password);
+    // clear db cache for user info
+    public static void clearUserCacheInfo(Context context) {
+       DB db = DBConnHelper.getConn(context, TAG);
+        if (db == null) {
+            return;
+        }
+        try {
+            db.del("token");
+            db.del("user");
+        } catch (SnappydbException e) {
+            Log.d(TAG, "clearUserCacheInfo error");
+            return;
+        }
+    }
+
+    public String getUserName() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
 }

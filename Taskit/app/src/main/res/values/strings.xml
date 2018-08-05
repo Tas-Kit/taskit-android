@@ -21,5 +21,14 @@
     <string name="sign_up">Sign up</string>
     <string name="code">Code</string>
     <string name="reset_password">rest password</string>
-
+    <string name="home_page">Home Page</string>
+    <string name="user_info_page">UserInfo Page</string>
+    <string name="user_info_card">Account</string>
+    <string name="setting_card">Setting</string>
+    <string name="loading">Loading</string>
+    <string name="product_related_card">Product Related</string>
+    <string name="notification">Timely Notification</string>
+    <string name="help_and_feedback">Help &amp; Feedback</string>
+    <string name="service_terms">Service Terms</string>
+    <string name="log_out">Log Out</string>
 </resources>

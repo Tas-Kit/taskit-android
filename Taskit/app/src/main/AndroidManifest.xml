@@ -17,6 +17,7 @@
         <activity android:name=".activity.SignupActivity"></activity>
         <activity android:name=".activity.ForgotPasswordActivity"></activity>
         <activity android:name=".activity.DashboardActivity"></activity>
+        <activity android:name=".activity.UserInfoActivity"></activity>
     </application>
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
