@@ -1,13 +1,7 @@
 package com.taskit.taskit_android.util;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 import com.taskit.taskit_android.model.User;
 import com.taskit.taskit_android.network.HttpClientUtil;
 
@@ -15,8 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Base64;
 
 
 public class UserHttpUtil {
@@ -27,6 +19,7 @@ public class UserHttpUtil {
     private static String SIGNUP_URL = "userservice/exempt/signup/";
     private static String RESET_PASSWORD_URL = "userservice/exempt/reset_password/";
     private static String SET_PASSWORD_URL = "userservice/exempt/set_password/";
+    private static String USER_INFO_URL = "userservice/userinfo/";
 
     // Return token for successful log in, otherwise null
     public static String login(String username, String password) {
@@ -126,5 +119,23 @@ public class UserHttpUtil {
             e.printStackTrace();
         }
         return new JSONObject();
+    }
+
+    // Use token to get user info
+    public static User getUserInfo(String token) {
+        JSONObject post = new JSONObject();
+        try {
+            String result = HttpClientUtil.getWithToken(USER_INFO_URL, token);
+            JSONObject object = new JSONObject(result);
+            String email = object.getString("email");
+            String username = object.getString("username");
+            return new User(username, "", email);
+        } catch (IOException e) {
+            Log.d(TAG, "io exception getUserInfo");
+
+        } catch (JSONException e) {
+            Log.d(TAG, "json exception getUserInfo");
+        }
+        return null;
     }
 }

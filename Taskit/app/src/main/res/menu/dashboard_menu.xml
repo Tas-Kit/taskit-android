@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" >
+    <item
+            android:id="@+id/action_user_info"
+            app:showAsAction="always"
+            android:icon="@drawable/baseline_info_white_36"
+            android:title="info">
+    </item>
+    <item
+        android:id="@+id/action_notification"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_notifications_none_black_36"
+        android:title="notification">
+    </item>
+</menu>

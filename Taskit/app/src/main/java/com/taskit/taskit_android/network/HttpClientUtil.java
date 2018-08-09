@@ -20,7 +20,7 @@ import okhttp3.Response;
  */
 public class HttpClientUtil {
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private static final String BASE_URL = "http://staging.tas-kit.com/api/v1/";
+    private static final String BASE_URL = "http://sandbox.tas-kit.com/api/v1/";
 
     private static OkHttpClient client = new OkHttpClient();
 
@@ -33,6 +33,18 @@ public class HttpClientUtil {
         return response.body().string();
     }
 
+    public static String getWithToken(String url, String token) throws IOException {
+        Request request = new Request.Builder()
+                .url(getAbsoluteUrl(url))
+                .addHeader("Cookie", "JWT=" + token)
+                .build();
+
+        Response response = client.newCall(request).execute();
+        return response.body().string();
+    }
+
+
+
     public static String postJson(String url, String json) throws IOException {
 
         RequestBody body = RequestBody.create(JSON, json);
@@ -40,6 +52,20 @@ public class HttpClientUtil {
                 .url(getAbsoluteUrl(url))
                 .post(body)
                 .addHeader("content-type", "application/json")
+                .build();
+        Response response = client.newCall(request).execute();
+        return response.body().string();
+    }
+
+
+    public static String postJsonWithToken(String url, String json, String token) throws IOException {
+
+        RequestBody body = RequestBody.create(JSON, json);
+        Request request = new Request.Builder()
+                .url(getAbsoluteUrl(url))
+                .post(body)
+                .addHeader("content-type", "application/json")
+                .addHeader("Cookie", "JWT=" + token)
                 .build();
         Response response = client.newCall(request).execute();
         return response.body().string();

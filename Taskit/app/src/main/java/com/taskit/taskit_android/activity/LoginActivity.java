@@ -52,8 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     private void maybeRedirect() {
         Log.d(TAG, String.format("mayebe Redirect %s", TAG));
         String token = User.getToken(getApplicationContext());
-        User user = User.getUser(getApplicationContext());
-        if (token != null && user != null) {
+        if (token != null) {
             Log.d(TAG, String.format("Exist token %s", token));
             Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
             startActivity(intent);
@@ -239,9 +238,8 @@ public class LoginActivity extends AppCompatActivity {
                 bundle.putString("result", "Login Successfully, redirecting to the dashboard!");
                 msg.setData(bundle);
                 handler.sendMessage(msg);
-                // store User and Auth info to db and redirect
+                // store Auth info to db and redirect
                 User.syncTokenToDB(getApplicationContext(), token);
-                User.syncUserToDB(getApplicationContext(), new User(mEmail, mPassword, mEmail));
                 Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                 startActivity(intent);
                 finish();
