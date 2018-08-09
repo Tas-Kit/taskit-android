@@ -1,13 +1,7 @@
 package com.taskit.taskit_android.network;
-import android.content.Context;
-
-import com.loopj.android.http.*;
 
 import java.io.IOException;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -59,7 +53,6 @@ public class HttpClientUtil {
 
 
     public static String postJsonWithToken(String url, String json, String token) throws IOException {
-
         RequestBody body = RequestBody.create(JSON, json);
         Request request = new Request.Builder()
                 .url(getAbsoluteUrl(url))

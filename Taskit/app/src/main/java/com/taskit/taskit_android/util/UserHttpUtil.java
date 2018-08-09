@@ -123,7 +123,6 @@ public class UserHttpUtil {
 
     // Use token to get user info
     public static User getUserInfo(String token) {
-        JSONObject post = new JSONObject();
         try {
             String result = HttpClientUtil.getWithToken(USER_INFO_URL, token);
             JSONObject object = new JSONObject(result);
